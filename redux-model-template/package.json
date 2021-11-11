@@ -1,0 +1,57 @@
+{
+  "name": "redux-model-template",
+  "icon": "images/icon.png",
+  "publisher": "Eatfirst",
+  "displayName": "redux-model-template",
+  "description": "generate code template for redux-model project",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "categories": [
+    "Snippets",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:redux-model-template.createReduxModelTemplate"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "redux-model-template.createReduxModelTemplate",
+        "title": "Create Redux-Model Template"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "redux-model-template.createReduxModelTemplate",
+          "group": "1_modification",
+          "when": "explorerResourceIsFolder"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.52.0",
+    "@types/glob": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "14.x",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
+    "eslint": "^7.32.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.1.1",
+    "typescript": "^4.4.3",
+    "@vscode/test-electron": "^1.6.2"
+  }
+}
