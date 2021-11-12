@@ -5,6 +5,9 @@ const fsPromises = fs.promises;
 
 const isFile = (fileName: string) => fs.lstatSync(fileName).isFile();
 
+const isDirectory = (fileName: string) => fs.lstatSync(fileName).isDirectory();
+
+
 const findApiSnippetStr = (str: string) =>
   str.match(/import.*?;/g)?.filter(text => text.includes('$') && !text.includes(','));
 
@@ -36,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         let apiSnippet = '';
         const parentDir = folderPath.slice(0, folderPath.lastIndexOf('/'));
-        const dirPathList: string[] = fs.readdirSync(parentDir)?.filter((item: string) => !item.includes('.DS_Store')).map((name: string) => `${parentDir}/${name}`);
+        const dirPathList: string[] = fs.readdirSync(parentDir)?.map((name: string) => `${parentDir}/${name}`).filter((item: string) => isDirectory(item));
         if (dirPathList.length) {
           const parentDirApiSnippetsList = await Promise.all(dirPathList.map(dirPath => getApiSnippetsFromFolder(dirPath)));
           const deletedDuplicateApiSnippetsList = [...new Set(parentDirApiSnippetsList.flat())].filter(Boolean);
