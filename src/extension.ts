@@ -3,9 +3,7 @@ const fs = require('fs');
 const fsPromises = fs.promises;
 
 
-const isFile = (fileName: string) => {
-  return fs.lstatSync(fileName).isFile();
-};
+const isFile = (fileName: string) => fs.lstatSync(fileName).isFile();
 
 const findApiSnippetStr = (str: string) =>
   str.match(/import.*?;/g)?.filter(text => text.includes('$') && !text.includes(','));
@@ -22,44 +20,68 @@ const showApiSnippetsSelect = async (apiSnippets: string[]) => {
   return res !== 'None of them' ? res : '';
 };
 
+const firstUpperCase = (str: string) => str.replace(/^\S/, s => s.toUpperCase());
+
+const firstLowerCase = (str: string) => str.replace(/^\S/, s => s.toLowerCase());
+
 
 export function activate(context: vscode.ExtensionContext) {
 
   let disposable = vscode.commands.registerCommand('redux-model-template.createReduxModelTemplate', async (param) => {
     const folderPath = param.fsPath;
     const name = await vscode.window.showInputBox({
-      placeHolder: `Enter your model name`
+      placeHolder: `Enter your model name like 'Course' or 'course'`
     });
     if (name) {
-      const path = `${folderPath}/${name}`;
       try {
         let apiSnippet = '';
-        const apiSnippets = await getApiSnippetsFromFolder(folderPath);
-
-        switch (apiSnippets.length) {
-          case 0:
-            // 当前目录找不到api就去上级目录遍历下来找一次
-            const parentDir = folderPath.slice(0, folderPath.lastIndexOf('/'));
-            const dirPathList: string[] = fs.readdirSync(parentDir)?.map((name: string) => `${parentDir}/${name}`);
-            if (dirPathList.length) {
-              const parentDirApiSnippetsList = await Promise.all(dirPathList.map(dirPath => getApiSnippetsFromFolder(dirPath)));
-              const deletedDuplicateApiSnippetsList = [...new Set(parentDirApiSnippetsList.flat())].filter(Boolean);
-              if (deletedDuplicateApiSnippetsList.length === 1) {
-                apiSnippet = deletedDuplicateApiSnippetsList[0];
-              } else if (deletedDuplicateApiSnippetsList.length > 1) {
-                apiSnippet = await showApiSnippetsSelect(deletedDuplicateApiSnippetsList) ?? "";
-              }
-            }
-            break;
-          case 1:
-            apiSnippet = apiSnippets[0];
-            break;
+        const parentDir = folderPath.slice(0, folderPath.lastIndexOf('/'));
+        const dirPathList: string[] = fs.readdirSync(parentDir)?.map((name: string) => `${parentDir}/${name}`);
+        if (dirPathList.length) {
+          const parentDirApiSnippetsList = await Promise.all(dirPathList.map(dirPath => getApiSnippetsFromFolder(dirPath)));
+          const deletedDuplicateApiSnippetsList = [...new Set(parentDirApiSnippetsList.flat())].filter(Boolean);
+          if (deletedDuplicateApiSnippetsList.length === 1) {
+            apiSnippet = deletedDuplicateApiSnippetsList[0];
+          } else if (deletedDuplicateApiSnippetsList.length > 1) {
+            apiSnippet = await showApiSnippetsSelect(deletedDuplicateApiSnippetsList) ?? "";
+          }
         }
+        const api = apiSnippet.match(/{(.*?)}/)?.[1].trim() ?? '';
+        const content = api ? `import { Model } from '@redux-model/react';
+${apiSnippet}
 
-        if (apiSnippets.length > 1) {
-          apiSnippet = await showApiSnippetsSelect(apiSnippets) ?? "";
-        }
-        console.log(apiSnippet, 'apiSnippet');
+type Response = {};
+
+type Data = Response;
+
+class ${firstUpperCase(name)}Model extends Model<Data> {
+  manage = ${api}.action(() =>
+    this.get<Response>('').onSuccess((_, action) => {
+      return action.response;
+    }),
+  );
+
+  protected initialState(): Data {
+    return {};
+  }
+}
+
+export const ${firstLowerCase(name)}Model = new ${firstUpperCase(name)}Model();
+`: `import { Model } from '@redux-model/react';
+
+type Response = {};
+
+type Data = Response;
+
+class ${firstUpperCase(name)}Model extends Model<Data> {
+  protected initialState(): Data {
+    return {};
+  }
+}
+
+export const ${firstLowerCase(name)}Model = new ${firstUpperCase(name)}Model();
+`;
+        fs.writeFileSync(`${folderPath}/${firstUpperCase(name)}Model.ts`, content);
 
       } catch (error) {
         vscode.window.showWarningMessage(String(error));
