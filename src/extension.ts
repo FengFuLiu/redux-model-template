@@ -86,10 +86,12 @@ export const ${firstLowerCase(name)}Model = new ${firstUpperCase(name)}Model();
 `;
         fs.writeFileSync(`${folderPath}/${firstUpperCase(name)}Model.ts`, content);
 
-        const openPath = vscode.Uri.file(`${folderPath}/${firstUpperCase(name)}Model.ts`);
-        vscode.workspace.openTextDocument(openPath).then(doc => {
-          vscode.window.showTextDocument(doc);
-        });
+        setTimeout(() => {
+          const openPath = vscode.Uri.file(`${folderPath}/${firstUpperCase(name)}Model.ts`);
+          vscode.workspace.openTextDocument(openPath).then(doc => {
+            vscode.window.showTextDocument(doc);
+          });
+        }, 10);
 
       } catch (error) {
         vscode.window.showWarningMessage(String(error));

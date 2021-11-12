@@ -6,6 +6,6 @@ generate code template for [Redux-Model](https://github.com/redux-model/redux-mo
 > Tips: 仅检索models文件夹下其他文件使用过的httpService
 
 
-![](https://raw.githubusercontent.com/aaaaahua/redux-model-template/main/images/redux-model-demo.gif)
+![](https://raw.githubusercontent.com/aaaaahua/redux-model-template/main/images/redux-model.gif)
 
 **Enjoy!**
