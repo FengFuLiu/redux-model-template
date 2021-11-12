@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         let apiSnippet = '';
         const parentDir = folderPath.slice(0, folderPath.lastIndexOf('/'));
-        const dirPathList: string[] = fs.readdirSync(parentDir)?.map((name: string) => `${parentDir}/${name}`);
+        const dirPathList: string[] = fs.readdirSync(parentDir)?.filter((item: string) => !item.includes('.DS_Store')).map((name: string) => `${parentDir}/${name}`);
         if (dirPathList.length) {
           const parentDirApiSnippetsList = await Promise.all(dirPathList.map(dirPath => getApiSnippetsFromFolder(dirPath)));
           const deletedDuplicateApiSnippetsList = [...new Set(parentDirApiSnippetsList.flat())].filter(Boolean);
