@@ -4,7 +4,7 @@
   "publisher": "Eatfirst",
   "displayName": "redux-model-template",
   "description": "generate code template for redux-model project",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.52.0"
   },
